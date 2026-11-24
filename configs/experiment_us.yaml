@@ -1,0 +1,93 @@
+seed: 42
+data_config: configs/data.yaml
+nowcast:
+  frequency: weekly
+  weeks_before_release: 13
+  backcast: true
+  forecast_h1: true
+refit_every_quarters:
+  econ: 1
+  ml: 4
+  tsfm_ft: 4
+  tsfm: 4
+models:
+  econ:
+  - bridge
+  - midas
+  - dfm
+  ml:
+    random_forest:
+      n_estimators: 500
+      max_depth: null
+    xgboost:
+      n_estimators: 800
+      max_depth: 4
+      learning_rate: 0.05
+    lstm:
+      hidden: 64
+      layers: 1
+      epochs: 100
+      patience: 10
+      batch: 16
+  tsfm:
+    chronos:
+      repo: amazon/chronos-bolt-base
+      modes:
+      - zero_shot
+      - lora_ft
+      use_timegpt: false
+    lagllama:
+      checkpoint: lag-llama
+      modes:
+      - zero_shot
+      - lora_ft
+    timesfm:
+      # NOT READ. TSFMNowcaster does not thread this through, so the
+      # backend's own default is what runs: google/timesfm-2.5-200m-pytorch.
+      # Changing this line changes nothing; changing the default invalidates
+      # every existing TimesFM result.
+      repo: google/timesfm-2.5-200m-pytorch
+      modes:
+      - zero_shot
+  tsfm_frequency_strategy:
+  - aggregate_q
+  - masked_blocks
+  tsfm_zero_shot:
+  - chronos_aggregate_q
+  - chronos_ragged_edge
+  # The single-factor experiment, for all three families. It ran for Chronos
+  # alone, which bounded what the comparison could support. Requires Python
+  # >= 3.10 with timesfm and lag-llama installed: under 3.9 both backends
+  # abstain and the arm silently degrades.
+  - timesfm_completed_dfm
+  - lagllama_completed_dfm
+  # The covariate-aware arm. The study's discussion predicts that a model
+  # conditioning on the cross-section should close the gap on the filter;
+  # Chronos-2 is such a model, so the prediction is testable here.
+  - chronos2_completed_dfm
+finetune_budget_steps:
+- 0
+- 50
+- 200
+- 800
+evaluation:
+  metrics:
+  - rmse
+  - mae
+  # AUDIT-TRAIL ONLY. This is the bandwidth the study originally used and
+  # which/§69 show to be anti-conservative on this
+  # overlapping design; it survives so that TC1's `*_weekly_hac` columns
+  # reproduce the audited statistic. No verdict is decided by it -- the
+  # reported inference is the exact sign test on quarter-aggregated
+  # differentials. Do not raise this number to "fix" it: §69 shows a longer
+  # bandwidth is wrong in the other direction.
+  dm_hac_lags: 4
+  mcs_alpha: 0.1
+  episodes:
+    gfc:
+    - 2008Q3
+    - 2009Q4
+    covid:
+    - 2020Q1
+    - 2021Q2
+output_dir: results

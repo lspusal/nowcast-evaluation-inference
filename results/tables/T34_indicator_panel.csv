@@ -1,0 +1,23 @@
+series,description,frequency,transformation,vintages_from
+AWHMAN,hours worked mfg,monthly,first difference,1961-11-03
+BUSLOANS,business loans,monthly,log difference,1996-12-13
+CPF3M,CP-Tbill spread,monthly,first difference,1997-10-07
+CPIAUCSL,CPI,monthly,log difference,1972-07-21
+DGORDER,new orders durable goods,monthly,log difference,1999-08-04
+DSPIC96,real disposable income,monthly,log difference,1979-12-18
+FEDFUNDS,effective fed funds rate,monthly,first difference,1996-12-03
+GS10,10y treasury constant maturity,monthly,first difference,1996-12-03
+HOUST,housing starts,monthly,log,1960-07-21
+INDPRO,industrial production,monthly,log difference,1927-01-26
+M2SL,M2 money stock,monthly,second log difference,1980-02-08
+MANEMP,manufacturing employment,monthly,log difference,1961-11-03
+PAYEMS,payrolls,monthly,log difference,1955-05-06
+PCEPI,PCE deflator,monthly,log difference,2000-08-01
+PERMIT,building permits,monthly,log,1999-08-17
+PPIACO,PPI all commodities,monthly,log difference,1996-12-11
+RSAFS,retail sales,monthly,log difference,2001-06-13
+TCU,capacity utilization,monthly,first difference,1996-11-15
+UMCSENT,consumer sentiment,monthly,first difference,1998-07-31
+UNRATE,unemployment,monthly,first difference,1960-03-15
+EXPGS,exports,quarterly,log difference,1991-12-04
+IMPGS,imports,quarterly,log difference,1991-12-04

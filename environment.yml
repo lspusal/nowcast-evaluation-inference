@@ -1,0 +1,21 @@
+name: nowcast-evaluation-inference
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pip
+  - pandas
+  - numpy
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - matplotlib
+  - pyarrow
+  - pytest
+  - pip:
+      - pyyaml>=6.0
+      - requests>=2.31
+      - xgboost>=2.0
+      # Only for `make backtest`:
+      # - torch>=2.2
+      # - transformers>=4.40
+      # - chronos-forecasting>=1.4

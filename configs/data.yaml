@@ -1,0 +1,62 @@
+# configs/data.yaml — panel de series (ver docs/01_data_spec.md §2)
+#
+# `panel` define las dos especificaciones del paper:
+#   baseline : vintages ALFRED reales que cubren TODA la ventana 2005–2024.
+#              Es la especificación de los resultados principales: panel de
+#              composición constante, sin ruptura estructural, sin aproximación.
+#   extended : series cuyo historial de vintages empieza DESPUÉS de 2005.
+#              Entran solo como robustez, en pseudo-tiempo real, documentado.
+#
+# `vintage_start` es la fecha del primer vintage en ALFRED (verificada contra
+# la API, no asumida). `revision_rate` es la fracción medida de observaciones
+# que alguna vez cambiaron entre vintages: justifica empíricamente que para el
+# bloque financiero el pseudo-tiempo real es casi exacto.
+seed: 42
+sample:
+  train_start: "1990-01-01"
+  nowcast_start: "2005-01-01"
+  nowcast_end: "2024-12-31"
+target:
+  fred_id: GDPC1
+  growth_formula: compounded        # ((x_t/x_{t-1})^4 - 1)*100, as BEA publishes (R2)
+  transform: "((x_t/x_t-1)^4 - 1) * 100"  # QoQ SAAR, compounded
+  reference: second_release          # R2: segunda estimación oficial
+series:
+  # ---- baseline: cobertura de vintages completa en 2005–2024 -------------
+  - {fred_id: PAYEMS,   freq: M, tcode: 5, panel: baseline, vintage_start: "1955-05-06", note: "payrolls"}
+  - {fred_id: CPIAUCSL, freq: M, tcode: 5, panel: baseline, vintage_start: "1972-07-21", note: "CPI"}
+  - {fred_id: PCEPI,    freq: M, tcode: 5, panel: baseline, vintage_start: "2000-08-01", note: "PCE deflator"}
+  - {fred_id: INDPRO,   freq: M, tcode: 5, panel: baseline, vintage_start: "1927-01-26", note: "industrial production"}
+  - {fred_id: UNRATE,   freq: M, tcode: 2, panel: baseline, vintage_start: "1960-03-15", note: "unemployment"}
+  - {fred_id: HOUST,    freq: M, tcode: 4, panel: baseline, vintage_start: "1960-07-21", note: "housing starts"}
+  - {fred_id: PERMIT,   freq: M, tcode: 4, panel: baseline, vintage_start: "1999-08-17", note: "building permits"}
+  - {fred_id: RSAFS,    freq: M, tcode: 5, panel: baseline, vintage_start: "2001-06-13", note: "retail sales"}
+  - {fred_id: DSPIC96,  freq: M, tcode: 5, panel: baseline, vintage_start: "1979-12-18", note: "real disposable income"}
+  - {fred_id: UMCSENT,  freq: M, tcode: 2, panel: baseline, vintage_start: "1998-07-31", note: "consumer sentiment"}
+  - {fred_id: AWHMAN,   freq: M, tcode: 2, panel: baseline, vintage_start: "1961-11-03", note: "hours worked mfg"}
+  - {fred_id: DGORDER,  freq: M, tcode: 5, panel: baseline, vintage_start: "1999-08-04", note: "new orders durable goods, nominal (replaces FRED-MD AMDMNOx, not a real ALFRED id; the design notes)"}
+  - {fred_id: PPIACO,   freq: M, tcode: 5, panel: baseline, vintage_start: "1996-12-11", note: "PPI all commodities"}
+  - {fred_id: TCU,      freq: M, tcode: 2, panel: baseline, vintage_start: "1996-11-15", note: "capacity utilization"}
+  - {fred_id: CPF3M,    freq: M, tcode: 2, panel: baseline, vintage_start: "1997-10-07", note: "CP-Tbill spread, MONTHLY (356 obs, 31d modal gap; §11 set this to D by analogy without measuring -- see the design notes)"}
+  - {fred_id: BUSLOANS, freq: M, tcode: 5, panel: baseline, vintage_start: "1996-12-13", note: "business loans"}
+  - {fred_id: EXPGS,    freq: Q, tcode: 5, panel: baseline, vintage_start: "1991-12-04", note: "exports"}
+  - {fred_id: IMPGS,    freq: Q, tcode: 5, panel: baseline, vintage_start: "1991-12-04", note: "imports"}
+  # Added to restore the "mínimo 20" of docs/01_data_spec.md §2 after six
+  # series moved to `extended`; chosen to fill MISSING dimensions rather than
+  # duplicate existing ones.
+  - {fred_id: FEDFUNDS, freq: M, tcode: 2, panel: baseline, vintage_start: "1996-12-03", note: "effective fed funds rate — the panel had NO policy rate"}
+  - {fred_id: GS10,     freq: M, tcode: 2, panel: baseline, vintage_start: "1996-12-03", note: "10y treasury constant maturity"}
+  - {fred_id: M2SL,     freq: M, tcode: 6, panel: baseline, vintage_start: "1980-02-08", note: "M2 money stock (FRED-MD id 71, tcode 6)"}
+  - {fred_id: MANEMP,   freq: M, tcode: 5, panel: baseline, vintage_start: "1961-11-03", note: "manufacturing employment (FRED-MD id 37)"}
+  # ---- extended: el historial de vintages empieza DESPUÉS de 2005 --------
+  # Solo robustez. Para el bloque de mercado la tasa de revisión medida es
+  # ~0, así que el pseudo-tiempo real es casi exacto; ICSA es la excepción
+  # y debe reportarse con esa salvedad.
+  - {fred_id: ICSA,     freq: W, tcode: 5, panel: extended, vintage_start: "2009-05-28", revision_rate: 0.356, note: "initial claims SA (replaces FRED-MD CLAIMSx; the design notes). GENUINELY REVISED — weakest pseudo-real-time case"}
+  - {fred_id: DCOILWTICO, freq: D, tcode: 5, panel: extended, vintage_start: "2011-04-06", note: "WTI oil, DAILY"}
+  - {fred_id: BAA10Y,   freq: D, tcode: 2, panel: extended, vintage_start: "2014-01-27", revision_rate: 0.001, note: "credit spread Baa-10y, DAILY — effectively never revised"}
+  - {fred_id: T10YFF,   freq: D, tcode: 2, panel: extended, vintage_start: "2014-01-27", note: "term spread 10y-FF, DAILY"}
+  - {fred_id: DEXUSEU,  freq: D, tcode: 5, panel: extended, vintage_start: "2014-03-18", note: "USD/EUR, DAILY"}
+  - {fred_id: NASDAQCOM, freq: D, tcode: 5, panel: extended, vintage_start: "2014-05-19", revision_rate: 0.075, note: "NASDAQ Composite, DAILY (replaces SP500, not redistributable via FRED; the design notes). Revisions are vendor corrections, median relative change ~0%"}
+cache_dir: data/raw
+processed_dir: data/processed
